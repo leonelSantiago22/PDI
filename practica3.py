@@ -4,40 +4,72 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-gamma_imagenes = 1.5
-c_transformacion_logaritmica = 1
-rebanada_intensidad_nivel = 100
-rebanada_intensidad_ancho = 50
+# Parámetros globales utilizados para las transformaciones de imágenes.
+gamma_imagenes = 1.5  # Factor gamma para la transformación gamma.
+c_transformacion_logaritmica = 1  # Constante para la transformación logarítmica.
+rebanada_intensidad_nivel = 100  # Nivel de intensidad para la rebanada.
+rebanada_intensidad_ancho = 50  # Ancho de la rebanada de intensidad.
 
 # Funciones de transformación
 def negativo(img):
-    return 255 - img
+     
+    img = img.astype(np.float32) # Convertir la imagen a flotante
+    negativo = 255 - img # Aplicar la transformación negativa L-1-r  255 - img 
+    negativo = np.uint8(negativo) # Convertir la imagen a entero
+    
+    return negativo
 
+# Función para obtener los planos de bits de una imagen en escala de grises.
+# Descompone cada píxel de la imagen en sus 8 bits (de menor a mayor significancia).
 def rebanada_plano_bit(img):
-    planos_bits = []
+    planos_bits = []  # Lista para almacenar cada plano de bits.
     for bit in range(8):
+        # Extrae el bit correspondiente usando una operación AND bit a bit.
         plano_bit = np.bitwise_and(img, 1 << bit) >> bit
+        # Almacena el plano de bits escalado a 255 para visualizar.
         planos_bits.append(plano_bit * 255)
     return planos_bits
 
+# Función para aplicar transformación gamma a una imagen.
+# Normaliza la imagen dividiendo por 255, aplica la transformación gamma y escala de nuevo a 0-255.
 def transformacion_gamma(img, gamma):
-    inversa_de_gamma = 1.0 / gamma
+    inversa_de_gamma = 1.0 / gamma  # Calcula el inverso de gamma.
+    # Aplica la fórmula de transformación gamma: s = r^γ, donde r es el valor normalizado.
     return np.array(255 * (img / 255) ** inversa_de_gamma, dtype='uint8')
     # Divide cada elemento de img por 255 para normalizarlo a un rango entre 0 
     # y 1, luego eleva cada elemento a la potencia de invergaDeGamma
+    
+
+# Función para aplicar la transformación logarítmica a una imagen.
+# Es útil para expandir los valores oscuros de una imagen.
 def transformacion_logaritmica(img, c):
-    # El factor c controla la velocidad de este crecimiento exponencial.
-    s = c * np.log(1 + img) # Calculo de la transformacion
+    # Aplica la transformación logarítmica: s = c * log(1 + r), donde r es el valor del píxel.
+    s = c * np.log(1 + img)
+    # Clipa los valores entre 0 y 255 para asegurar que están dentro del rango de valores de la imagen.
     s = np.clip(s, 0, 255)
     return np.array(s, dtype=np.uint8)
 
+# Función para aplicar estiramiento de contraste.
+# Mejora el contraste de una imagen ajustando sus valores mínimos y máximos.
 def estiramiento_contraste(img):
-    a, b = np.min(img), np.max(img)
+    a, b = np.min(img), np.max(img)  # Encuentra los valores mínimo (a) y máximo (b) de la imagen.
+    # Aplica la fórmula del estiramiento de contraste: s = (r - a) * (255 / (b - a))
     return 255 * (img - a) / (b - a)
 
-def rebanada_nivel_intensidad(img, nivel, ancho):
-    img_nueva = np.zeros(img.shape, dtype=np.uint8)
-    img_nueva[(img >= nivel) & (img <= nivel + ancho)] = 255
+def rebanada_nivel_intensidad(img, nivel, ancho, valor_resaltado=255, preservar_fuera=True):
+    # Crear una copia de la imagen para trabajar
+    img_nueva = np.zeros_like(img)
+
+    # Crear la máscara para los valores dentro del rango [nivel, nivel + ancho]
+    mascara = (img >= nivel) & (img <= (nivel + ancho))
+
+    if preservar_fuera:
+        # Preservar los valores fuera del rango y resaltar los valores dentro del rango
+        img_nueva = np.where(mascara, valor_resaltado, img)
+    else:
+        # Resaltar los valores dentro del rango y los valores fuera del rango se establecen a 0
+        img_nueva[mascara] = valor_resaltado
+
     return img_nueva
 
 
