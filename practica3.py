@@ -1,5 +1,4 @@
 #sudo apt install python3-opencv
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,8 +21,8 @@ def rebanada_plano_bit(img):
     return planos_bits
 
 def transformacion_gamma(img, gamma):
-    inversaDeGamma = 1.0 / gamma
-    return np.array(255 * (img / 255) ** inversaDeGamma, dtype='uint8')
+    inversa_de_gamma = 1.0 / gamma
+    return np.array(255 * (img / 255) ** inversa_de_gamma, dtype='uint8')
     # Divide cada elemento de img por 255 para normalizarlo a un rango entre 0 
     # y 1, luego eleva cada elemento a la potencia de invergaDeGamma
 def transformacion_logaritmica(img, c):
@@ -56,9 +55,30 @@ def procesar_imagen(ruta_imagen):
 
     return img, img_negativo, img_gamma, img_log, img_contraste, img_rebanada_intensidad, img_rebanadas_bit
 
+# Función para graficar los histogramas
+def graficar_histogramas(img, img_contraste, titulo):
+    # Calcular histogramas
+    hist_original = cv2.calcHist([img], [0], None, [256], [0, 256])
+    hist_contraste = cv2.calcHist([img_contraste], [0], None, [256], [0, 256])
+
+    # Graficar histogramas
+    plt.figure(figsize=(10, 4))
+    plt.subplot(1, 2, 1)
+    plt.plot(hist_original, color='blue')
+    plt.title(f'Histograma Original - {titulo}')
+    plt.xlim([0, 256])
+
+    plt.subplot(1, 2, 2)
+    plt.plot(hist_contraste, color='red')
+    plt.title(f'Histograma Estiramiento de Contraste - {titulo}')
+    plt.xlim([0, 256])
+
+    plt.tight_layout()
+    plt.show()
+
 # Función para graficar las imágenes transformadas con títulos personalizados
 def graficar_transformaciones(img, img_negativo, img_gamma, img_log, img_contraste, img_rebanada_intensidad, titulo):
-    axs1 = plt.subplots(2, 3, figsize=(12, 8))
+    fig, axs1 = plt.subplots(2, 3, figsize=(12, 8))
 
     axs1[0, 0].imshow(img, cmap='gray')
     axs1[0, 0].set_title(f'Original - {titulo}')
@@ -86,7 +106,7 @@ def graficar_transformaciones(img, img_negativo, img_gamma, img_log, img_contras
 
 # Función para graficar los planos de bits
 def graficar_rebanadas_bits(img_rebanadas_bit, titulo):
-    axs2 = plt.subplots(2, 4, figsize=(12, 6))
+    fig, axs2 = plt.subplots(2, 4, figsize=(12, 6))
 
     for i in range(8):
         axs2[i // 4, i % 4].imshow(img_rebanadas_bit[i], cmap='gray')
@@ -104,7 +124,9 @@ def procesar_y_graficar_imagenes(lista_imagenes, lista_titulos):
         img, img_negativo, img_gamma, img_log, img_contraste, img_rebanada_intensidad, img_rebanadas_bit = procesar_imagen(ruta_imagen)
         print(f"Procesando imagen: {ruta_imagen} con título: {titulo}")
         graficar_transformaciones(img, img_negativo, img_gamma, img_log, img_contraste, img_rebanada_intensidad, titulo)
+        graficar_histogramas(img, img_contraste, titulo)
         graficar_rebanadas_bits(img_rebanadas_bit, titulo)
+        
 
 # Lista de imágenes y títulos para procesar
 lista_imagenes = ["./bajo_contraste.jpeg", "./altoContraste.jpg", "./poca_iluminacion.webp"]
