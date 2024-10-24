@@ -37,8 +37,7 @@ def transformacion_gamma(img, gamma):
     # Aplica la fórmula de transformación gamma: s = r^γ, donde r es el valor normalizado.
     return np.array(255 * (img / 255) ** inversa_de_gamma, dtype='uint8')
     # Divide cada elemento de img por 255 para normalizarlo a un rango entre 0 
-    # y 1, luego eleva cada elemento a la potencia de invergaDeGamma
-    
+    # y 1, luego eleva cada elemento a la potencia de invergaDeGamma 
 
 # Función para aplicar la transformación logarítmica a una imagen.
 # Es útil para expandir los valores oscuros de una imagen.
@@ -76,7 +75,7 @@ def rebanada_nivel_intensidad(img, nivel, ancho, valor_resaltado=255, preservar_
 
 # Función para cargar y procesar una imagen
 def procesar_imagen(ruta_imagen):
-    img = cv2.imread(ruta_imagen, 0)  # Cargar imagen en escala de grises
+    img = cv2.imread(ruta_imagen,  cv2.IMREAD_GRAYSCALE)  # Cargar imagen en escala de grises
 
     img_negativo = negativo(img)
     img_gamma = transformacion_gamma(img, gamma_imagenes)
