@@ -48,6 +48,8 @@ def transformacion_logaritmica(img, c):
     s = np.clip(s, 0, 255)
     return np.array(s, dtype=np.uint8)
 
+
+# El estiramiento de contraste es un proceso que expande el rango de niveles de intensidad en una imagen, tal que este abaraca el rango de intensidad completo.
 # Función para aplicar estiramiento de contraste.
 # Mejora el contraste de una imagen ajustando sus valores mínimos y máximos.
 def estiramiento_contraste(img):
@@ -55,6 +57,8 @@ def estiramiento_contraste(img):
     # Aplica la fórmula del estiramiento de contraste: s = (r - a) * (255 / (b - a))
     return 255 * (img - a) / (b - a)
 
+# Produce una imagen binaria, ilumina(u oscurese) el rango de intensidades deseado pero mantiene los demas 
+#niveles de intensidad sin cambios.
 def rebanada_nivel_intensidad(img, nivel, ancho, valor_resaltado=255, preservar_fuera=True):
     # Crear una copia de la imagen para trabajar
     img_nueva = np.zeros_like(img)
