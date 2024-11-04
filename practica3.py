@@ -33,9 +33,8 @@ def rebanada_plano_bit(img):
 # Función para aplicar transformación gamma a una imagen.
 # Normaliza la imagen dividiendo por 255, aplica la transformación gamma y escala de nuevo a 0-255.
 def transformacion_gamma(img, gamma):
-    inversa_de_gamma = 1.0 / gamma  # Calcula el inverso de gamma.
     # Aplica la fórmula de transformación gamma: s = r^γ, donde r es el valor normalizado.
-    return np.array(255 * (img / 255) ** inversa_de_gamma, dtype='uint8')
+    return np.array(255 * (img / 255) ** gamma, dtype='uint8')
     # Divide cada elemento de img por 255 para normalizarlo a un rango entre 0 
     # y 1, luego eleva cada elemento a la potencia de invergaDeGamma 
 
