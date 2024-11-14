@@ -128,9 +128,11 @@ def menu_opciones_operaciones():
     print("5. Calcular media y varianza local")
     print("6. Aplicar todas las operaciones a la vez")
     print("0. Volver al menú de selección de imágenes")
-    opcion = int(input("Elige una opción: "))
-    return opcion
+    opciones = input("Elige una o varias opciones separadas por comas (ej. 1,3,5): ")
+    opciones = [int(op) for op in opciones.split(",") if op.isdigit()]
+    return opciones
 
+# Menu para escojer las imagenes
 def menu_imagen():
     print("Selecciona la imagen con la que deseas trabajar:")
     print("1. Imagen de alto contraste")
@@ -153,6 +155,8 @@ def menu_imagen():
     else:
         print("Opción no válida. Intente de nuevo.")
         return None, None
+    
+# Funcion principal
 def main():
     while True:
         imagen, descripcion_imagen = menu_imagen()
@@ -161,39 +165,40 @@ def main():
             break
 
         while True:
-            opcion = menu_opciones_operaciones()
+            opciones = menu_opciones_operaciones()
             
-            if opcion == 1:
-                mostrar_imagen("Imagen Original", imagen, descripcion_imagen)
-            
-            elif opcion == 2:
-                resultado = ecualizacion_histograma_global(imagen)
-                mostrar_imagen("Ecualización de Histograma Global", resultado, descripcion_imagen)
-            
-            elif opcion == 3:
-                resultado = ecualizacion_histograma_local(imagen)
-                mostrar_imagen("Ecualización de Histograma Local", resultado, descripcion_imagen)
-            
-            elif opcion == 4:
-                media_global, varianza_global = calcular_media_varianza_global(imagen)
-                print(f"Media global: {media_global}, Varianza global: {varianza_global}")
-                mostrar_imagen("Media Global", media_global, descripcion_imagen)
-                mostrar_imagen("Varianza Global", varianza_global, descripcion_imagen)
-            
-            elif opcion == 5:
-                media_local, varianza_local = calcular_media_varianza_local(imagen)
-                mostrar_imagen("Media Local", media_local, descripcion_imagen)
-                mostrar_imagen("Varianza Local", varianza_local, descripcion_imagen)
-            
-            elif opcion == 6:
-                mostrar_todas_operaciones(imagen, descripcion_imagen)
-            
-            elif opcion == 0:
-                print("Volviendo al menú de selección de imágenes...")
-                break
-            
-            else:
-                print("Opción no válida. Intente de nuevo.")
+            for opcion in opciones:
+                if opcion == 1:
+                    mostrar_imagen("Imagen Original", imagen, descripcion_imagen)
+                
+                elif opcion == 2:
+                    resultado = ecualizacion_histograma_global(imagen)
+                    mostrar_imagen("Ecualización de Histograma Global", resultado, descripcion_imagen)
+                
+                elif opcion == 3:
+                    resultado = ecualizacion_histograma_local(imagen)
+                    mostrar_imagen("Ecualización de Histograma Local", resultado, descripcion_imagen)
+                
+                elif opcion == 4:
+                    media_global, varianza_global = calcular_media_varianza_global(imagen)
+                    print(f"Media global: {np.mean(media_global)}, Varianza global: {np.var(varianza_global)}")
+                    mostrar_imagen("Media Global", media_global, descripcion_imagen)
+                    mostrar_imagen("Varianza Global", varianza_global, descripcion_imagen)
+                
+                elif opcion == 5:
+                    media_local, varianza_local = calcular_media_varianza_local(imagen)
+                    mostrar_imagen("Media Local", media_local, descripcion_imagen)
+                    mostrar_imagen("Varianza Local", varianza_local, descripcion_imagen)
+                
+                elif opcion == 6:
+                    mostrar_todas_operaciones(imagen, descripcion_imagen)
+                
+                elif opcion == 0:
+                    print("Volviendo al menú de selección de imágenes...")
+                    break
+                
+                else:
+                    print("Opción no válida. Intente de nuevo.")
 
 if __name__ == "__main__":
     main()
