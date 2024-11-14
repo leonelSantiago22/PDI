@@ -17,22 +17,34 @@ def cargar_imagen(ruta):
     # Cargar imagen en escala de grises
     return cv.imread(ruta, cv.IMREAD_GRAYSCALE)
 
+#Mostrar las imagenes y su historial
 def mostrar_imagen(titulo, img, descripcion_imagen):
-    plt.figure()
-    plt.title(f"{titulo} - {descripcion_imagen}")
-    plt.imshow(img, cmap='gray')
-    plt.axis('off')
+    # Crear una figura con dos subplots: uno para la imagen y otro para el histograma
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+    fig.suptitle(f"{titulo} - {descripcion_imagen}")
+
+    # Mostrar la imagen en el primer subplot
+    axs[0].imshow(img, cmap='gray')
+    axs[0].set_title("Imagen")
+    axs[0].axis('off')
+
+    # Calcular y mostrar el histograma en el segundo subplot
+    histograma = cv.calcHist([img], [0], None, [256], [0, 256])
+    axs[1].plot(histograma, color='black')
+    axs[1].set_title("Histograma")
+    axs[1].set_xlim([0, 256])
+
     plt.show()
 
 def mostrar_todas_operaciones(imagen, descripcion_imagen):
     # Generar los resultados de todas las operaciones
     eq_global = ecualizacion_histograma_global(imagen)
     eq_local = ecualizacion_histograma_local(imagen)
-    media_global, varianza_global = calcular_media_varianza(imagen)
+    media_global_img, varianza_global_img = calcular_media_varianza_global(imagen)
     media_local, varianza_local = calcular_media_varianza_local(imagen)
     
-    # Crear una figura de 2x3
-    fig, axs = plt.subplots(2, 3, figsize=(15, 10))
+    # Crear una figura de 3x3 para mostrar todas las imágenes, incluyendo media y varianza globales
+    fig, axs = plt.subplots(3, 3, figsize=(15, 15))
     fig.suptitle(f"Resultados de todas las operaciones - {descripcion_imagen}")
 
     # Mostrar la imagen original
@@ -49,18 +61,32 @@ def mostrar_todas_operaciones(imagen, descripcion_imagen):
     axs[0, 2].set_title("Ecualización de Histograma Local")
     axs[0, 2].axis('off')
 
+    # Mostrar la media local
     axs[1, 0].imshow(media_local, cmap='gray')
-    axs[1, 0].set_title(f"Media Local (Media global: {media_global:.2f})")
+    axs[1, 0].set_title("Media Local")
     axs[1, 0].axis('off')
 
+    # Mostrar la varianza local
     axs[1, 1].imshow(varianza_local, cmap='gray')
-    axs[1, 1].set_title(f"Varianza Local (Varianza global: {varianza_global:.2f})")
+    axs[1, 1].set_title(f"Varianza Local (Varianza global: {np.var(imagen):.2f})")
     axs[1, 1].axis('off')
 
-    # Espacio vacío para la figura de 2x3
+    # Mostrar la media global como imagen constante
+    axs[1, 2].imshow(media_global_img, cmap='gray')
+    axs[1, 2].set_title(f"Media Global: {np.mean(imagen):.2f}")
     axs[1, 2].axis('off')
+
+    # Mostrar la varianza global como imagen constante
+    axs[2, 0].imshow(varianza_global_img, cmap='gray')
+    axs[2, 0].set_title(f"Varianza Global: {np.var(imagen):.2f}")
+    axs[2, 0].axis('off')
+
+    # Espacios vacíos
+    axs[2, 1].axis('off')
+    axs[2, 2].axis('off')
     
     plt.show()
+
 
 def ecualizacion_histograma_global(img):
     # Ecualización de histograma global
@@ -71,17 +97,27 @@ def ecualizacion_histograma_local(img, clip_limit=2.0, tile_grid_size=(8, 8)):
     clahe = cv.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
     return clahe.apply(img)
 
-def calcular_media_varianza(img):
+def calcular_media_varianza_global(img):
     # Calcular la media y varianza global de la imagen
     media = np.mean(img)
     varianza = np.var(img)
-    return media, varianza
+    
+    # Crear imágenes constantes con los valores de media y varianza para visualización
+    imagen_media = np.full_like(img, media, dtype=np.float32)
+    imagen_varianza = np.full_like(img, varianza, dtype=np.float32)
+    
+    return imagen_media, imagen_varianza
+
 
 def calcular_media_varianza_local(img, kernel_size=5):
-    # Calcular media y varianza local usando un filtro de media y desviación estándar
-    media_local = cv.blur(img, (kernel_size, kernel_size))
-    varianza_local = cv.blur((img - media_local) ** 2, (kernel_size, kernel_size))
-    return media_local, varianza_local
+    # Calcular media y varianza local usando un filtro de media y desviación estándard
+    kernel = np.ones((kernel_size, kernel_size), dtype=np.float32)
+    img_blurred = cv.filter2D(img, -1, kernel)
+    
+    img_diff = img - img_blurred
+    variances = cv.filter2D(img_diff**2, -1, kernel)
+    
+    return img_blurred, variances
 
 def menu_opciones_operaciones():
     print("Opciones:")
@@ -117,7 +153,6 @@ def menu_imagen():
     else:
         print("Opción no válida. Intente de nuevo.")
         return None, None
-
 def main():
     while True:
         imagen, descripcion_imagen = menu_imagen()
@@ -140,8 +175,10 @@ def main():
                 mostrar_imagen("Ecualización de Histograma Local", resultado, descripcion_imagen)
             
             elif opcion == 4:
-                media, varianza = calcular_media_varianza(imagen)
-                print(f"Media global: {media}, Varianza global: {varianza}")
+                media_global, varianza_global = calcular_media_varianza_global(imagen)
+                print(f"Media global: {media_global}, Varianza global: {varianza_global}")
+                mostrar_imagen("Media Global", media_global, descripcion_imagen)
+                mostrar_imagen("Varianza Global", varianza_global, descripcion_imagen)
             
             elif opcion == 5:
                 media_local, varianza_local = calcular_media_varianza_local(imagen)
