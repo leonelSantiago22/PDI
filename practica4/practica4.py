@@ -156,7 +156,6 @@ def menu_imagen():
         print("Opción no válida. Intente de nuevo.")
         return None, None
     
-# Funcion principal
 def main():
     while True:
         imagen, descripcion_imagen = menu_imagen()
@@ -166,6 +165,11 @@ def main():
 
         while True:
             opciones = menu_opciones_operaciones()
+            
+            # Verificar si la opción 0 está seleccionada
+            if 0 in opciones:
+                print("Volviendo al menú de selección de imágenes...")
+                break
             
             for opcion in opciones:
                 if opcion == 1:
@@ -192,10 +196,6 @@ def main():
                 
                 elif opcion == 6:
                     mostrar_todas_operaciones(imagen, descripcion_imagen)
-                
-                elif opcion == 0:
-                    print("Volviendo al menú de selección de imágenes...")
-                    break
                 
                 else:
                     print("Opción no válida. Intente de nuevo.")
