@@ -90,8 +90,9 @@ def menu_opciones_operaciones(img):
             print("Regresando al menú principal...")
             break
 
-        radio = 20
-        orden = 2
+        radio = int(input("Ingresa el radio del filtro: "))
+        if opcion in [2, 5]:
+            orden = int(input("Ingresa el orden del filtro Butterworth: "))
         
         if opcion == 1:
             filtro = filtro_ideal_paso_bajo(img.shape, radio)
